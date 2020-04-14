@@ -22,7 +22,7 @@ pub struct Game {
 
     width: i32,
     height: i32,
-    
+
     game_over: bool,
     waiting_time: f64,
 }
@@ -51,7 +51,7 @@ impl Game {
             Key::Down => Some(Direction::Down),
             Key::Left => Some(Direction::Left),
             Key::Right => Some(Direction::Right),
-            _ => None,
+            _ => Some(self.snake.head_direction())
         };
 
         if dir.unwrap() == self.snake.head_direction().opposite() {
@@ -85,7 +85,6 @@ impl Game {
             if self.waiting_time > RESTART_TIME {
                 self.restart();
             }
-
             return;
         }
 
@@ -100,13 +99,13 @@ impl Game {
 
     fn check_eating(&mut self) {
         let (head_x, head_y): (i32, i32) = self.snake.head_position();
-        if self.food_exists && self.food_x == head_x && self.food_y ==head_y {
+        if self.food_exists && self.food_x == head_x && self.food_y == head_y {
             self.food_exists = false;
             self.snake.restore_tail();
         }
     }
 
-    fn check_if_snake_alive(&mut self, dir: Option<Direction>) -> bool {
+    fn check_if_snake_alive(&self, dir: Option<Direction>) -> bool {
         let (next_x, next_y) = self.snake.next_head(dir);
 
         if self.snake.overlap_tail(next_x, next_y) {
@@ -120,15 +119,14 @@ impl Game {
         let mut rng = thread_rng();
 
         let mut new_x = rng.gen_range(1, self.width - 1);
-        let mut new_y = rng.gen_range(1, self.width - 1);
-
+        let mut new_y = rng.gen_range(1, self.height - 1);
         while self.snake.overlap_tail(new_x, new_y) {
             new_x = rng.gen_range(1, self.width - 1);
-            new_y = rng.gen_range(1, self.width - 1);
+            new_y = rng.gen_range(1, self.height - 1);
         }
 
-        self.food_x= new_x;
-        self.food_y= new_y;
+        self.food_x = new_x;
+        self.food_y = new_y;
         self.food_exists = true;
     }
 
